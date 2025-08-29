@@ -151,7 +151,10 @@ def parse_options(root_path, is_train=True):
         opt['name'] = 'debug_' + opt['name']
 
     if opt['num_gpu'] == 'auto':
-        opt['num_gpu'] = torch.cuda.device_count()
+        if torch.cuda.is_available():
+            opt['num_gpu'] = torch.cuda.device_count()
+        if torch.xpu.is_available():
+            opt['num_gpu'] = torch.xpu.device_count()
 
     # datasets
     for phase, dataset in opt['datasets'].items():
