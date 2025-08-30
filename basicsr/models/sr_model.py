@@ -264,10 +264,10 @@ class SRModel(BaseModel):
 
     def get_current_visuals(self):
         out_dict = OrderedDict()
-        out_dict['lq'] = self.lq.detach().cpu()
-        out_dict['result'] = self.output.detach().cpu()
+        out_dict['lq'] = self.lq.detach().cpu().float()
+        out_dict['result'] = self.output.detach().cpu().float()
         if hasattr(self, 'gt'):
-            out_dict['gt'] = self.gt.detach().cpu()
+            out_dict['gt'] = self.gt.detach().cpu().float()
         return out_dict
 
     def save(self, epoch, current_iter):
