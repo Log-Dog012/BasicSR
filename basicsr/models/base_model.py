@@ -16,7 +16,7 @@ class BaseModel():
     def __init__(self, opt):
         self.opt = opt
         self.device = 'cpu'
-        self.dtype = torch.float32
+        self.dtype = opt['dtype']
         if opt['num_gpu'] != 0:
             if torch.cuda.is_available():
                 self.device = 'cuda'

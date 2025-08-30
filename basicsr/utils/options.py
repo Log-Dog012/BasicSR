@@ -146,6 +146,12 @@ def parse_options(root_path, is_train=True):
     opt['auto_resume'] = args.auto_resume
     opt['is_train'] = is_train
 
+    opt['dtype'] = opt.get('dtype', 'float32')
+    if opt['dtype'] == 'float32':
+        opt['dtype'] = torch.float32
+    elif opt['dtype'] == 'bfloat16':
+        opt['dtype'] = torch.bfloat16
+
     # debug setting
     if args.debug and not opt['name'].startswith('debug'):
         opt['name'] = 'debug_' + opt['name']

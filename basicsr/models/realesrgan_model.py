@@ -183,6 +183,8 @@ class RealESRGANModel(SRGANModel):
             if 'gt' in data:
                 self.gt = data['gt'].to(self.device)
                 self.gt_usm = self.usm_sharpener(self.gt)
+        self.lq = self.lq.to(self.dtype)
+        self.gt = self.gt.to(self.dtype)
 
     def nondist_validation(self, dataloader, current_iter, tb_logger, save_img):
         # do not use the synthetic process during validation
