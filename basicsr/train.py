@@ -88,7 +88,7 @@ def load_resume_state(opt):
             map_location = lambda storage, loc: storage.cuda(device_id)
         if torch.xpu.is_available():
             device_id = torch.xpu.current_device()
-            map_location = lambda storage, loc: storage.xpu(device_id)
+            map_location = f'xpu:{device_id}'
         resume_state = torch.load(resume_state_path, map_location=map_location)
         check_resume(opt, resume_state['iter'])
     return resume_state
