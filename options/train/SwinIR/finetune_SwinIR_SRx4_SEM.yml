@@ -14,8 +14,8 @@ datasets:
   train:
     name: SEM
     type: PairedImageDataset
-    dataroot_gt: datasets/swinir_train/HR
-    dataroot_lq: datasets/swinir_train/LR_x4
+    dataroot_gt: /kaggle/input/datasets/logdog012/swinir-finetune/train_sem_hr/HR
+    dataroot_lq: /kaggle/input/datasets/logdog012/swinir-finetune/train_sem_lr_x4/LR_x4
     filename_tmpl: '{}'
     io_backend:
       type: disk
@@ -26,15 +26,15 @@ datasets:
 
     # data loader
     num_worker_per_gpu: 6
-    batch_size_per_gpu: 8  # RTX 30 显存充足，可加大 batch
+    batch_size_per_gpu: 8  # RTX 30 / T4 显存充足
     dataset_enlarge_ratio: 1
     prefetch_mode: ~
 
   val:
     name: LVSEM_eval
     type: PairedImageDataset
-    dataroot_gt: datasets/eval/SEMimg
-    dataroot_lq: datasets/eval/LR
+    dataroot_gt: /kaggle/input/datasets/logdog012/swinir-finetune/eval_sem/eval/SEMimg
+    dataroot_lq: /kaggle/input/datasets/logdog012/swinir-finetune/eval_sem/eval/LR
     io_backend:
       type: disk
 
@@ -55,7 +55,7 @@ network_g:
 
 # path
 path:
-  pretrain_network_g: SwinIR/model_zoo/001_classicalSR_DIV2K_s48w8_SwinIR-M_x4.pth
+  pretrain_network_g: SwinIR/model_zoo/001_classicalSR_DIV2K_s48w8_SwinIR-M_x4.pth  # notebook 中复制到此处
   strict_load_g: false  # 不严格加载，允许部分 key 不匹配
   resume_state: ~
 auto_resume: true  # 断点续训：自动从最新 checkpoint 恢复
