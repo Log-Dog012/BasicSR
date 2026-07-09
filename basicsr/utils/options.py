@@ -143,7 +143,9 @@ def parse_options(root_path, is_train=True):
             # using exec function
             exec(eval_str)
 
-    opt['auto_resume'] = args.auto_resume
+    if args.auto_resume:
+        opt['auto_resume'] = True
+    # else keep the YAML value (don't override with False)
     opt['is_train'] = is_train
 
     opt['dtype'] = opt.get('dtype', 'float32')

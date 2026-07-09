@@ -1,6 +1,7 @@
 import datetime
 import logging
 import math
+import os
 import time
 import torch
 from os import path as osp
@@ -68,13 +69,32 @@ def create_train_val_dataloader(opt, logger):
 def load_resume_state(opt):
     resume_state_path = None
     if opt['auto_resume']:
-        state_path = osp.join('experiments', opt['name'], 'training_states')
+        # 先检查当前目录
+        exp_root_dir = osp.join(opt.get('root_path', '.'), 'experiments')
+        state_path = osp.join(exp_root_dir, opt['name'], 'training_states')
         if osp.isdir(state_path):
             states = list(scandir(state_path, suffix='state', recursive=False, full_path=False))
             if len(states) != 0:
                 states = [float(v.split('.state')[0]) for v in states]
                 resume_state_path = osp.join(state_path, f'{max(states):.0f}.state')
                 opt['path']['resume_state'] = resume_state_path
+        # 如果当前目录没有，检查最新的归档目录
+        if resume_state_path is None:
+            exp_root = osp.join(opt.get('root_path', '.'), 'experiments')
+            archived_dirs = sorted([
+                d for d in os.listdir(exp_root)
+                if d.startswith(opt['name'] + '_archived_') and osp.isdir(osp.join(exp_root, d))
+            ], reverse=True)
+            for archived_dir in archived_dirs:
+                archived_state_path = osp.join(exp_root, archived_dir, 'training_states')
+                if osp.isdir(archived_state_path):
+                    states = list(scandir(archived_state_path, suffix='state', recursive=False, full_path=False))
+                    if len(states) != 0:
+                        states = [float(v.split('.state')[0]) for v in states]
+                        resume_state_path = osp.join(archived_state_path, f'{max(states):.0f}.state')
+                        opt['path']['resume_state'] = resume_state_path
+                        print(f'Resume from archived state: {resume_state_path}')
+                        break
     else:
         if opt['path'].get('resume_state'):
             resume_state_path = opt['path']['resume_state']
