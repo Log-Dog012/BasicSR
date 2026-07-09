@@ -1,0 +1,100 @@
+# SwinIR-M x4 微调配置（低压 SEM 场景）
+# 基于预训练 classical SR 模型，在 SEM 数据上微调
+
+# general settings
+name: finetune_SwinIR_SRx4_SEM
+model_type: SwinIRModel
+scale: 4
+num_gpu: auto
+manual_seed: 0
+
+# dataset and data loader settings
+datasets:
+  train:
+    name: SEM
+    type: PairedImageDataset
+    dataroot_gt: datasets/swinir_train/HR
+    dataroot_lq: datasets/swinir_train/LR_x4
+    filename_tmpl: '{}'
+    io_backend:
+      type: disk
+
+    gt_size: 192  # patch size (与原版训练一致)
+    use_hflip: true
+    use_rot: true
+
+    # data loader
+    num_worker_per_gpu: 4
+    batch_size_per_gpu: 4  # XPU 显存有限，用小 batch
+    dataset_enlarge_ratio: 1
+    prefetch_mode: ~
+
+  val:
+    name: LVSEM_eval
+    type: PairedImageDataset
+    dataroot_gt: datasets/eval/SEMimg
+    dataroot_lq: datasets/eval/LR
+    io_backend:
+      type: disk
+
+# network structures
+network_g:
+  type: SwinIR
+  upscale: 4
+  in_chans: 3
+  img_size: 48
+  window_size: 8
+  img_range: 1.
+  depths: [6, 6, 6, 6, 6, 6]
+  embed_dim: 180
+  num_heads: [6, 6, 6, 6, 6, 6]
+  mlp_ratio: 2
+  upsampler: 'pixelshuffle'
+  resi_connection: '1conv'
+
+# path
+path:
+  pretrain_network_g: SwinIR/model_zoo/001_classicalSR_DIV2K_s48w8_SwinIR-M_x4.pth
+  strict_load_g: false  # 不严格加载，允许部分 key 不匹配
+  resume_state: ~
+auto_resume: true  # 断点续训：自动从最新 checkpoint 恢复
+
+# training settings
+train:
+  ema_decay: 0.999
+  optim_g:
+    type: Adam
+    lr: !!float 1e-4  # 比原版小学习率，微调用
+    weight_decay: 0
+    betas: [0.9, 0.99]
+
+  scheduler:
+    type: MultiStepLR
+    milestones: [30000, 50000, 60000, 65000]
+    gamma: 0.5
+
+  total_iter: 70000  # 微调不需要太多迭代
+  warmup_iter: -1
+
+  # losses
+  pixel_opt:
+    type: L1Loss
+    loss_weight: 1.0
+    reduction: mean
+
+# validation settings
+val:
+  val_freq: !!float 5e3
+  save_img: true
+
+  metrics:
+    psnr:
+      type: calculate_psnr
+      crop_border: 4
+      test_y_channel: false
+
+# logging settings
+logger:
+  print_freq: 100
+  save_checkpoint_freq: !!float 5e3
+  use_tb_logger: true

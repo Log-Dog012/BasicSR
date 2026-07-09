@@ -148,9 +148,26 @@ def imwrite(img, file_path, params=None, auto_mkdir=True):
     if auto_mkdir:
         dir_name = os.path.abspath(os.path.dirname(file_path))
         os.makedirs(dir_name, exist_ok=True)
-    ok = cv2.imwrite(file_path, img, params)
+    try:
+        ok = cv2.imwrite(file_path, img, params)
+    except Exception:
+        ok = False
     if not ok:
-        raise IOError('Failed in writing images.')
+        # Fallback: write to temp then move (handles Chinese paths on Windows)
+        import tempfile, shutil
+        tmp = tempfile.NamedTemporaryFile(suffix='.png', delete=False)
+        tmp.close()
+        try:
+            cv2.imwrite(tmp.name, img, params)
+            shutil.move(tmp.name, file_path)
+            ok = True
+        except Exception:
+            try:
+                os.unlink(tmp.name)
+            except OSError:
+                pass
+    if not ok:
+        raise IOError(f'Failed in writing images: {file_path}')
 
 
 def crop_border(imgs, crop_border):
