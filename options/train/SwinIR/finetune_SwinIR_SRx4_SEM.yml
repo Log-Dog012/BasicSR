@@ -83,16 +83,15 @@ train:
     loss_weight: 1.0
     reduction: mean
 
-# validation settings
-val:
-  val_freq: !!float 5e3
-  save_img: true
-
-  metrics:
-    psnr:
-      type: calculate_psnr
-      crop_border: 4
-      test_y_channel: false
+# validation settings — 训练时跳过，结束后用 basicsr/test.py 单独评估
+# val:
+#   val_freq: !!float 5e3
+#   save_img: false
+#   metrics:
+#     psnr:
+#       type: calculate_psnr
+#       crop_border: 4
+#       test_y_channel: false
 
 # logging settings
 logger:
