@@ -6,7 +6,7 @@
 name: finetune_SwinIR_SRx4_SEM
 model_type: SwinIRModel
 scale: 4
-num_gpu: 2  # 2×RTX 30 series
+num_gpu: auto  # 自动检测 GPU 数量
 manual_seed: 0
 
 # dataset and data loader settings
@@ -74,7 +74,7 @@ train:
     milestones: [30000, 50000, 60000, 65000]
     gamma: 0.5
 
-  total_iter: 44000  # ~11.3h，留 20min 余量防 Kaggle 12h 超时
+  total_iter: 70000  # 目标值，实际由 --force_yml 按 GPU 数量动态覆盖
   warmup_iter: -1
 
   # losses
