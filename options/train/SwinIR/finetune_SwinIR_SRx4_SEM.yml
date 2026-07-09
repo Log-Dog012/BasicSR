@@ -74,7 +74,7 @@ train:
     milestones: [30000, 50000, 60000, 65000]
     gamma: 0.5
 
-  total_iter: 70000  # 微调不需要太多迭代
+  total_iter: 44000  # ~11.3h，留 20min 余量防 Kaggle 12h 超时
   warmup_iter: -1
 
   # losses
