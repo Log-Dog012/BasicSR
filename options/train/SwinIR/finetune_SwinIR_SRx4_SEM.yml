@@ -99,3 +99,8 @@ logger:
   print_freq: 100
   save_checkpoint_freq: !!float 5e3
   use_tb_logger: true
+
+# dist training settings
+dist_params:
+  backend: nccl
+  port: 29500
