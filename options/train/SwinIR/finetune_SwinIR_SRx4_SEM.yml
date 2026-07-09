@@ -1,11 +1,12 @@
 # SwinIR-M x4 微调配置（低压 SEM 场景）
 # 基于预训练 classical SR 模型，在 SEM 数据上微调
+# 目标环境: Ubuntu, 2×RTX 30 series, CUDA
 
 # general settings
 name: finetune_SwinIR_SRx4_SEM
 model_type: SwinIRModel
 scale: 4
-num_gpu: auto
+num_gpu: 2  # 2×RTX 30 series
 manual_seed: 0
 
 # dataset and data loader settings
@@ -24,8 +25,8 @@ datasets:
     use_rot: true
 
     # data loader
-    num_worker_per_gpu: 4
-    batch_size_per_gpu: 4  # XPU 显存有限，用小 batch
+    num_worker_per_gpu: 6
+    batch_size_per_gpu: 8  # RTX 30 显存充足，可加大 batch
     dataset_enlarge_ratio: 1
     prefetch_mode: ~
 
@@ -64,7 +65,7 @@ train:
   ema_decay: 0.999
   optim_g:
     type: Adam
-    lr: !!float 1e-4  # 比原版小学习率，微调用
+    lr: !!float 1e-4  # 微调学习率（比原版小）
     weight_decay: 0
     betas: [0.9, 0.99]
 
