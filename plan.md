@@ -75,24 +75,24 @@ git clone <swinir_repo_url>
 
 ### 3. 准备训练数据
 
-训练数据需要从原始 SEM 数据集生成。运行：
-
+从 Kaggle 下载数据集：
 ```bash
-# 需要先准备原始 SEM 数据到 datasets/train/ 下
-# 然后运行数据准备脚本（在 BasicSR 目录下）
-python prepare_swinir_data.py
+pip install kaggle
+kaggle datasets download -d logdog012/swinir-finetune --unzip -p workspace/datasets
 ```
 
-或者直接从之前的机器复制 `datasets/swinir_train/` 目录。
-
-### 4. 准备评估数据
-
-```bash
-# 从原始 eval 数据生成 LR
-python generate_eval_lr.py
+下载后目录结构：
+```
+workspace/datasets/
+├── swinir_train/
+│   ├── HR/          # 19256 张 HR 图 (4.78 GB)
+│   └── LR_x4/       # 19256 张 4x bicubic LR 图 (0.5 GB)
+└── eval/
+    ├── SEMimg/      # 210 张低压 SEM HR 图
+    └── LR/          # 210 张 4x bicubic LR 图
 ```
 
-或者直接复制 `datasets/eval/` 目录。
+**注意**：如果 Kaggle 下载路径不是 `workspace/datasets/`，需要调整训练配置中的 `dataroot_gt` 和 `dataroot_lq` 路径（或建立软链接）。
 
 ---
 
