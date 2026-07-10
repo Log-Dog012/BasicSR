@@ -41,15 +41,18 @@ class PairedGrayDataset(PairedImageDataset):
         gt = gt[:, :, np.newaxis]
         lq = lq[:, :, np.newaxis]
 
-        # 随机裁剪
-        gt, lq = self._paired_random_crop(gt, lq, gt_size, scale=scale)
+        # 随机裁剪（仅训练阶段）
+        if self.opt.get('phase', 'train') == 'train':
+            gt, lq = self._paired_random_crop(gt, lq, gt_size, scale=scale)
 
-        # 验证裁剪结果
-        if gt.shape[0] == 0 or gt.shape[1] == 0 or lq.shape[0] == 0 or lq.shape[1] == 0:
-            return self.__getitem__(np.random.randint(0, len(self)))
+            # 验证裁剪结果
+            if gt.shape[0] == 0 or gt.shape[1] == 0 or lq.shape[0] == 0 or lq.shape[1] == 0:
+                return self.__getitem__(np.random.randint(0, len(self)))
 
-        # 翻转 & 旋转
-        gt, lq = augment([gt, lq], self.opt['use_hflip'], self.opt['use_rot'])
+            # 翻转 & 旋转
+            gt, lq = augment([gt, lq],
+                             self.opt.get('use_hflip', True),
+                             self.opt.get('use_rot', True))
 
         # numpy → tensor（img2tensor 内部会做 transpose(2,0,1)，这里传入 (H,W,1) 即可）
         from basicsr.utils.img_util import img2tensor
