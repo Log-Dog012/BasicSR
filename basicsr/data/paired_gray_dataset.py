@@ -16,9 +16,11 @@ class PairedGrayDataset(PairedImageDataset):
         gt_path = self.paths[index]['gt_path']
         lq_path = self.paths[index]['lq_path']
 
-        # 读取灰度图
+        # 读取灰度图，加通道维度 (H,W) → (H,W,1)
         gt = cv2.imread(gt_path, cv2.IMREAD_GRAYSCALE).astype(np.float32) / 255.0
         lq = cv2.imread(lq_path, cv2.IMREAD_GRAYSCALE).astype(np.float32) / 255.0
+        gt = gt[:, :, np.newaxis]  # (H,W) → (H,W,1)
+        lq = lq[:, :, np.newaxis]
 
         # 随机裁剪
         gt_size = self.opt.get('gt_size', None)
@@ -29,9 +31,9 @@ class PairedGrayDataset(PairedImageDataset):
         # 翻转 & 旋转
         gt, lq = augment([gt, lq], self.opt['use_hflip'], self.opt['use_rot'])
 
-        # HWC → CHW (单通道)
-        gt = gt[np.newaxis, :, :]
-        lq = lq[np.newaxis, :, :]
+        # CHW (单通道): (H,W,1) → (1,H,W)
+        gt = gt.transpose(2, 0, 1)
+        lq = lq.transpose(2, 0, 1)
 
         # numpy → tensor
         from basicsr.utils.img_util import img2tensor
