@@ -153,21 +153,22 @@ def imwrite(img, file_path, params=None, auto_mkdir=True):
     except Exception:
         ok = False
     if not ok:
-        # Fallback: write to temp then move (handles Chinese paths on Windows)
-        import tempfile, shutil
-        tmp = tempfile.NamedTemporaryFile(suffix='.png', delete=False)
-        tmp.close()
+        # Fallback: 用 PIL 写入（OpenCV 不支持中文路径写入）
         try:
-            cv2.imwrite(tmp.name, img, params)
-            shutil.move(tmp.name, file_path)
-            ok = True
+            from PIL import Image
+            if img.ndim == 2:
+                pil_img = Image.fromarray(img)
+            elif img.shape[2] == 3:
+                pil_img = Image.fromarray(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
+            else:
+                pil_img = Image.fromarray(img)
+            pil_img.save(file_path)
+            ok = os.path.exists(file_path)
         except Exception:
-            try:
-                os.unlink(tmp.name)
-            except OSError:
-                pass
+            pass
     if not ok:
         raise IOError(f'Failed in writing images: {file_path}')
+    return ok
 
 
 def crop_border(imgs, crop_border):
