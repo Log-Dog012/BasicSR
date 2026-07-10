@@ -11,8 +11,8 @@ datasets:
   train:
     name: SEM_gray
     type: PairedImageDataset
-    dataroot_gt: datasets/swinir_train_gray/HR
-    dataroot_lq: datasets/swinir_train_gray/LR_x4
+    dataroot_gt: /kaggle/input/datasets/logdog012/swinir-finetune/train_sem_hr/HR
+    dataroot_lq: /kaggle/input/datasets/logdog012/swinir-finetune/train_sem_lr_x4/LR_x4
     filename_tmpl: '{}'
     io_backend:
       type: disk
@@ -27,8 +27,8 @@ datasets:
   val:
     name: LVSEM_eval_gray
     type: PairedImageDataset
-    dataroot_gt: datasets/eval/SEMimg_gray
-    dataroot_lq: datasets/eval/LR_gray
+    dataroot_gt: /kaggle/input/datasets/logdog012/swinir-finetune/eval_sem/eval/SEMimg
+    dataroot_lq: /kaggle/input/datasets/logdog012/swinir-finetune/eval_sem/eval/LR
     io_backend:
       type: disk
 
