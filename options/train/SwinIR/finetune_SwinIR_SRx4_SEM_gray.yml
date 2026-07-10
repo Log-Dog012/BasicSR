@@ -52,6 +52,10 @@ path:
   resume_state: ~
 auto_resume: true
 
+dist_params:
+  backend: nccl
+  port: 29500
+
 train:
   ema_decay: 0.999
   optim_g:
