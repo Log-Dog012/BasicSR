@@ -23,7 +23,8 @@ class PairedGrayDataset(PairedImageDataset):
         # 随机裁剪
         gt_size = self.opt.get('gt_size', None)
         if gt_size is not None:
-            gt, lq = self._paired_random_crop(gt, lq, gt_size, scale=self.scale)
+            scale = self.opt.get('scale', 4)
+            gt, lq = self._paired_random_crop(gt, lq, gt_size, scale=scale)
 
         # 翻转 & 旋转
         gt, lq = augment([gt, lq], self.opt['use_hflip'], self.opt['use_rot'])
@@ -41,13 +42,13 @@ class PairedGrayDataset(PairedImageDataset):
 
     @staticmethod
     def _paired_random_crop(gt, lq, gt_size, scale):
-        """配对随机裁剪"""
+        """配对随机裁剪：LQ 裁 gt_size//scale，HR 裁 gt_size"""
         h, w = gt.shape[:2]
+        lr_size = gt_size // scale
         rnd_h = np.random.randint(0, max(0, h - gt_size))
         rnd_w = np.random.randint(0, max(0, w - gt_size))
         gt = gt[rnd_h:rnd_h + gt_size, rnd_w:rnd_w + gt_size]
-        rnd_h_gt, rnd_w_gt = int(rnd_h * scale), int(rnd_w * scale)
-        lq = lq[rnd_h_gt:rnd_h_gt + gt_size, rnd_w_gt:rnd_w_gt + gt_size]
+        lq = lq[rnd_h:rnd_h + lr_size, rnd_w:rnd_w + lr_size]
         return gt, lq
 
 
