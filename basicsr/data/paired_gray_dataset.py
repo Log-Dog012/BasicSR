@@ -43,7 +43,8 @@ class PairedGrayDataset(PairedImageDataset):
 
         # 随机裁剪（仅训练阶段）
         if self.opt.get('phase', 'train') == 'train':
-            gt, lq = self._paired_random_crop(gt, lq, gt_size, scale=scale)
+            max_crop_y = self.opt.get('max_crop_y', None)
+            gt, lq = self._paired_random_crop(gt, lq, gt_size, scale=scale, max_crop_y=max_crop_y)
 
             # 验证裁剪结果
             if gt.shape[0] == 0 or gt.shape[1] == 0 or lq.shape[0] == 0 or lq.shape[1] == 0:
@@ -62,9 +63,10 @@ class PairedGrayDataset(PairedImageDataset):
         return {'lq': lq_tensor, 'gt': gt_tensor, 'lq_path': lq_path, 'gt_path': gt_path}
 
     @staticmethod
-    def _paired_random_crop(gt, lq, gt_size, scale):
+    def _paired_random_crop(gt, lq, gt_size, scale, max_crop_y=None):
         """配对随机裁剪（与原版 PairedImageDataset 一致）
-        先在 LQ 上随机起点，再映射到 HR
+        先在 LQ 上随机起点，再映射到 HR。
+        max_crop_y: HR 裁剪的 y 轴上限（像素），用于避开底部文字区域。
         """
         h_lq, w_lq = lq.shape[0], lq.shape[1]
         lr_size = gt_size // scale
@@ -72,6 +74,16 @@ class PairedGrayDataset(PairedImageDataset):
         # 在 LQ 上随机选起点
         top = np.random.randint(0, max(1, h_lq - lr_size + 1))
         left = np.random.randint(0, max(1, w_lq - lr_size + 1))
+
+        # 如果指定了 max_crop_y，限制 HR 裁剪不越过该 y 坐标
+        if max_crop_y is not None:
+            top_gt = int(top * scale)
+            # 确保 HR 裁剪块不超过 max_crop_y
+            if top_gt + gt_size > max_crop_y:
+                # 重新计算 top，使 top_gt + gt_size <= max_crop_y
+                max_top_gt = max(0, max_crop_y - gt_size)
+                top = np.random.randint(0, max(1, min(max_top_gt, h_lq - lr_size) + 1))
+                top_gt = int(top * scale)
 
         # 裁 LQ
         lq = lq[top:top + lr_size, left:left + lr_size, ...]

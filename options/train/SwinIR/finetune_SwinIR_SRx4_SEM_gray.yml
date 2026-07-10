@@ -19,6 +19,7 @@ datasets:
     gt_size: 192
     use_hflip: true
     use_rot: true
+    max_crop_y: 600  # 限制 HR 裁剪 y 轴上限，避开底部文字区域
     num_worker_per_gpu: 4
     batch_size_per_gpu: 4
     dataset_enlarge_ratio: 1
